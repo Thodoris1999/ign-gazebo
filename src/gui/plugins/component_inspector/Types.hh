@@ -28,19 +28,15 @@ namespace gazebo
 {
 namespace inspector
 {
-  /// \brief UpdateCallback is a function defition that is used by a
-  /// component to manage ECM changes.
-  /// \sa void ComponentInspectorEditor::AddUpdateCallback(UpdateCallback _cb)
-  using UpdateCallback = std::function<void(EntityComponentManager &)>;
-
-  /// CreateCallback is a function definition that a component can use
-  /// to create the appropriate UI elements for an Entity based on
-  /// a ComponentTypeId.
-  /// \sa void ComponentInspectorEditor::AddCreateCallback(
-  /// UpdateCallback _cb)
-  using CreateCallback = std::function<void(EntityComponentManager &,
-      Entity, QStandardItem *)>;
+  /// \brief Function definition that a component can use
+  /// to update its UI elements based on changes from the ECM.
+  ///   * _ecm Immutable reference to the ECM
+  ///   * _item Item to be updated
+  /// \sa ComponentInspector::AddUpdateViewCb
+  using UpdateViewCb = std::function<void(const EntityComponentManager &_ecm,
+      QStandardItem *_item)>;
 }
 }
 }
 #endif
+
