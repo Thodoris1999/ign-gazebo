@@ -17,7 +17,10 @@
 #ifndef IGNITION_GAZEBO_GUI_COMPONENTINSPECTOR_SYSTEMINFO_HH_
 #define IGNITION_GAZEBO_GUI_COMPONENTINSPECTOR_SYSTEMINFO_HH_
 
+#include "ignition/gazebo/EntityComponentManager.hh"
+
 #include <QObject>
+#include <QStandardItem>
 
 namespace ignition
 {
@@ -26,7 +29,7 @@ namespace gazebo
 class ComponentInspector;
 namespace inspector
 {
-  /// \brief A class that handles SystemInfo component changes.
+  /// \brief A class that handles SystemInfo components.
   class SystemInfo : public QObject
   {
     Q_OBJECT
@@ -34,6 +37,12 @@ namespace inspector
     /// \brief Constructor
     /// \param[in] _inspector The component inspector.
     public: explicit SystemInfo(ComponentInspector *_inspector);
+
+    /// \brief Callback when there are ECM updates.
+    /// \param[in] _ecm Immutable reference to the ECM.
+    /// \param[in] _item Item to update.
+    public: void UpdateView(const EntityComponentManager &_ecm,
+        QStandardItem *_item);
 
     /// \brief Pointer to the component inspector. This is used to add
     /// callbacks.

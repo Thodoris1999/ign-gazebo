@@ -889,11 +889,6 @@ void ComponentInspector::Update(const UpdateInfo &,
         Qt::QueuedConnection,
         Q_ARG(ignition::gazebo::ComponentTypeId, typeId));
   }
-
-  // Process all of the update callbacks
-  for (auto cb : this->dataPtr->updateCallbacks)
-    cb(_ecm);
-  this->dataPtr->updateCallbacks.clear();
 }
 
 /////////////////////////////////////////////////

@@ -33,36 +33,39 @@ SystemInfo::SystemInfo(ComponentInspector *_inspector)
   _inspector->Context()->setContextProperty("SystemInfoImpl", this);
   this->inspector = _inspector;
 
-  CreateCallback creator =
-    [=](EntityComponentManager &_ecm, Entity _entity, QStandardItem *_item)
+  this->inspector->AddUpdateViewCb(components::SystemInfo::typeId,
+      std::bind(&SystemInfo::UpdateView, this, std::placeholders::_1,
+      std::placeholders::_2));
+}
+
+/////////////////////////////////////////////////
+void SystemInfo::UpdateView(const EntityComponentManager &_ecm,
+    QStandardItem *_item)
+{
+  auto comp = _ecm.Component<components::SystemInfo>(
+      this->inspector->GetEntity());
+  if (nullptr == _item || nullptr == comp)
+    return;
+
+  auto msg = comp->Data();
+
+  _item->setData(QString("SystemInfo"),
+      ComponentsModel::RoleNames().key("dataType"));
+
+  QList<QVariant> pluginList;
+  for (int i = 0; i < msg.plugins().size(); ++i)
   {
-    auto comp = _ecm.Component<components::SystemInfo>(_entity);
-    if (nullptr == _item || nullptr == comp)
-      return;
+    QList<QVariant> dataList;
+    dataList.push_back(
+        QVariant(QString::fromStdString(msg.plugins(i).name())));
+    dataList.push_back(
+        QVariant(QString::fromStdString(msg.plugins(i).filename())));
+    dataList.push_back(
+        QVariant(QString::fromStdString(msg.plugins(i).innerxml())));
+    pluginList.push_back(dataList);
+  }
 
-    auto msg = comp->Data();
-
-    _item->setData(QString("SystemInfo"),
-        ComponentsModel::RoleNames().key("dataType"));
-
-    QList<QVariant> pluginList;
-    for (int i = 0; i < msg.plugins().size(); ++i)
-    {
-      QList<QVariant> dataList;
-      dataList.push_back(
-          QVariant(QString::fromStdString(msg.plugins(i).name())));
-      dataList.push_back(
-          QVariant(QString::fromStdString(msg.plugins(i).filename())));
-      dataList.push_back(
-          QVariant(QString::fromStdString(msg.plugins(i).innerxml())));
-      pluginList.push_back(dataList);
-    }
-
-    _item->setData(pluginList,
-        ComponentsModel::RoleNames().key("data"));
-  };
-
-  this->inspector->AddCreateCallback(
-      components::SystemInfo::typeId, creator);
+  _item->setData(pluginList,
+      ComponentsModel::RoleNames().key("data"));
 }
 
