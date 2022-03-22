@@ -34,6 +34,12 @@ Rectangle {
   // Horizontal margins
   property int margin: 5
 
+  // Light text color according to theme
+  property string propertyColor: Material.theme == Material.Light ? "#444444" : "#bbbbbb"
+
+  // Dark text color according to theme
+  property string valueColor: Material.theme == Material.Light ? "black" : "white"
+
   Column {
     anchors.fill: parent
 
@@ -59,15 +65,168 @@ Rectangle {
 
       ListView {
         id: column
-        height: 200
+        height: contentHeight
         model: componentData
+        width: content.width
+        spacing: 5
 
-        delegate: Text {
-          height: 40
-          text: modelData[0]
-          leftPadding: 5
-          color: Material.theme == Material.Light ? "#444444" : "#bbbbbb"
-          font.pointSize: 12
+        delegate: Column {
+          width: content.width
+          height: pluginHeader.height + pluginContent.height
+
+          Rectangle {
+            id: pluginHeader
+            width: content.width
+            color: "transparent"
+            height: 20
+            RowLayout {
+              anchors.fill: parent
+              Item {
+                width: margin * 2 + indentation
+              }
+              Image {
+                id: icon
+                sourceSize.height: indentation
+                sourceSize.width: indentation
+                fillMode: Image.Pad
+                Layout.alignment : Qt.AlignVCenter
+                source: pluginContent.show ?
+                    "qrc:/Gazebo/images/minus.png" : "qrc:/Gazebo/images/plus.png"
+              }
+              Text {
+                height: parent.height
+                text: modelData[0].substring(modelData[0].lastIndexOf('::') + 2)
+                Layout.alignment : Qt.AlignVCenter
+                leftPadding: margin
+                color: propertyColor
+                font.pointSize: 12
+              }
+              Item {
+                Layout.fillWidth: true
+              }
+            }
+            MouseArea {
+              anchors.fill: pluginHeader
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: {
+                pluginContent.show = !pluginContent.show
+              }
+              onEntered: {
+                pluginHeader.color = highlightColor
+              }
+              onExited: {
+                pluginHeader.color = "transparent"
+              }
+            }
+          }
+          GridLayout {
+            id: pluginContent
+            property bool show: false
+            width: parent.width
+            height: show ? 20 * 4 + innerXmlText.height : 0
+            clip: true
+            columns: 4
+
+            Behavior on height {
+              NumberAnimation {
+                duration: 200;
+                easing.type: Easing.InOutQuad
+              }
+            }
+            Item {
+              Layout.rowSpan: 4
+              width: margin * 4 + indentation * 2
+            }
+            Text {
+              height: 20
+              text: "Name"
+              color: propertyColor
+              font.pointSize: 12
+            }
+            Text {
+              height: 20
+              text: modelData[0]
+              color: valueColor
+              font.pointSize: 12
+              clip: true
+              elide: Text.ElideLeft
+              horizontalAlignment: Text.AlignRight
+              Layout.fillWidth: true
+
+              ToolTip {
+                visible: maName.containsMouse
+                delay: Qt.styleHints.mousePressAndHoldInterval
+                text: modelData[0]
+                enter: null
+                exit: null
+              }
+              MouseArea {
+                id: maName
+                anchors.fill: parent
+                hoverEnabled: true
+              }
+            }
+            Item {
+              Layout.rowSpan: 4
+              width: margin
+            }
+            Text {
+              height: 20
+              text: "Filename"
+              color: propertyColor
+              font.pointSize: 12
+            }
+            Text {
+              height: 20
+              text: modelData[1]
+              color: valueColor
+              font.pointSize: 12
+              clip: true
+              elide: Text.ElideLeft
+              horizontalAlignment: Text.AlignRight
+              Layout.fillWidth: true
+
+              ToolTip {
+                visible: maFilename.containsMouse
+                delay: Qt.styleHints.mousePressAndHoldInterval
+                text: modelData[1]
+                enter: null
+                exit: null
+              }
+              MouseArea {
+                id: maFilename
+                anchors.fill: parent
+                hoverEnabled: true
+              }
+            }
+            Text {
+              height: 20
+              text: "Inner XML"
+              color: propertyColor
+              font.pointSize: 12
+              Layout.columnSpan: 2
+            }
+            Rectangle {
+              id: innerXmlRectangle
+              Layout.columnSpan: 2
+              Layout.fillWidth: true
+              height: innerXmlText.contentHeight * 0.8
+              color: Material.background
+              TextEdit {
+                id: innerXmlText
+                anchors.fill: parent
+                text: modelData[2].length == 0 ? "N/A" : modelData[2]
+                color: valueColor
+                textFormat: TextEdit.PlainText
+                font.pointSize: 10
+                clip: true
+                readOnly: true
+                wrapMode: Text.WordWrap
+                selectByMouse: true
+              }
+            }
+          }
         }
       }
     }
